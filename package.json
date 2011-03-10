@@ -1,0 +1,13 @@
+{
+	"name": "autoload",
+	"version": "0.1.0",
+	"description": "Autoloading symbols via source code grokking",
+	"keywords": ["autoload", "require"],
+	"homepage": "https://github.com/laverdet/node-autoload",
+	"author": "Marcel Laverdet <marcel@laverdet.com> (https://github.com/laverdet/)",
+	"main": "autoload",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/laverdet/node-autoload.git"
+	}
+}
