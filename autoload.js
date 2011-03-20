@@ -2,7 +2,7 @@ var fs = require('fs');
 var joinPath = require('path').join;
 
 this.autoload = autoload;
-this.autoloadRegisteredGlobals = autoloadRegisteredGlobals;
+this.registeredGlobalsAutoloader = registeredGlobalsAutoloader;
 this.scrapeRegisterGlobalSymbols = scrapeRegisterGlobalSymbols;
 this.stripComments = stripComments;
 
@@ -11,16 +11,16 @@ this.stripComments = stripComments;
  * specialized autoloaders can be built from this example, but this should be enough for the simple
  * global case.
  */
-function autoloadRegisteredGlobals(root, require, ondone) {
+function registeredGlobalsAutoloader(require) {
 	registerGlobal(registerGlobal);
-	autoload(root, [{
+	return {
 		pattern: /\.js$/,
 		require: function(path) {
 			require(path.replace(/\.js$/, ''));
 		},
 		parse: scrapeRegisterGlobalSymbols,
 		scope: global,
-	}], ondone);
+	};
 }
 
 /**
@@ -77,17 +77,15 @@ function scrapeRegisterGlobalSymbols(source, path) {
  * argument. In that case, the function's `name` property becomes the name of the global symbol.
  */
 function registerGlobal(name, fn) {
-  if (arguments.length === 1) {
-    if (name instanceof Function) {
-      fn = name;
-      name = fn.name;
-    } else {
-      throw new TypeError('Must specify name with non-Function');
-    }
-  }
-	// Delete autoload getter first in the case this is being provided from outside an autoloader.
-	delete global[name];
-  global[name] = fn;
+	if (arguments.length === 1) {
+		if (name instanceof Function) {
+			fn = name;
+			name = fn.name;
+		} else {
+			throw new TypeError('Must specify name with non-Function');
+		}
+	}
+	global[name] = fn;
 }
 
 /**
@@ -136,9 +134,9 @@ function autoload(root, loaders, ondone) {
 								// It's possible the symbol has already been defined, in which case we should avoid
 								// clobbering it with the autoloader.
 								if (!loaders[ii].scope.hasOwnProperty(symbols[jj])) {
-									Object.defineProperty(loaders[ii].scope, symbols[jj], {
-										get: function(loader, symbol) {
-											return function() {
+									~function(loader, symbol) {
+										Object.defineProperty(loader.scope, symbol, {
+											get: function() {
 												delete loader.scope[symbol];
 												loader.require(path);
 												if (loader.scope.hasOwnProperty(symbol)) {
@@ -146,11 +144,15 @@ function autoload(root, loaders, ondone) {
 												} else {
 													throw new Error('Failed to autoload ' + symbol);
 												}
-											};
-										}(loaders[ii], symbols[jj]),
-										configurable: true,
-										enumerable: true,
-									});
+											},
+											set: function(val) {
+												delete loader.scope[symbol];
+												loader.scope[symbol] = val;
+											},
+											configurable: true,
+											enumerable: true,
+										});
+									}(loaders[ii], symbols[jj]);
 								}
 							}
 						}

@@ -23,28 +23,31 @@ INSTALLING
 GETTING STARTED
 ---------------
 
-In your top-level script, call `autoloadRegisteredGlobals` to initialize a typical autoloading
-environment:
+In your top-level script, call `autoload` and `registeredGlobalsAutoloader` to initialize a typical
+autoloading environment:
 
 		main.js:
-		require('autoload').autoloadRegisteredGlobals(__dirname, require, function() {
-			[ your regular code goes here ]
+		var autoload = require('autoload');
+		autoload.autoload(__dirname, [autoload.registeredGlobalsAutoloader(require)], function() {
+			<< your regular code goes here >>
 		});
-		[ don't put code here, as autoload is not ready yet! ]
+		<< don't put code here, as autoload is not ready yet! >>
 
 
 To register a global as autoloadable, in another module you would do:
 
 		my-global-function.js:
 		registerGlobal(function MyGlobalFunction() {
-			[ function here ]
+			<< function here >>
 		});
 
 
-When you call `autoloadRegisteredGlobals` it will search `__dirname` for Javascript files and
-attempt to find all globals which could be defined (via `registerGlobal`). After it finds those
-symbols it registers autoloading getters on the global object (but does not actually require the
-module). When the getter is invoked the module is require'd and the symbol is returned.
+When you call `autoload` it will search `__dirname` for Javascript files and attempt to find all
+globals which could be defined (via `registerGlobal`). After it finds those symbols it registers
+autoloading getters on the global object (but does not actually require the module). When the getter
+is invoked the module is require'd and the symbol is returned.
 
-Be sure to look at the source code for `autoloadRegisteredGlobals`, as you can use this library to
-autoload symbols in scopes outside of global as well.
+Be sure to look at the source code for `registeredGlobalsAutoloader`, as you can use this library to
+autoload symbols in scopes outside of global as well, or you can implement your own global exporting
+pattern too. For instance of you prefer `global.MySymbol = ...` or `MySymbol = ...` you could wire
+that up. I prefer having the global be super explicit which is why I made registerGlobal().
