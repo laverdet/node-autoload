@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/laverdet/node-autoload.png)](http://travis-ci.org/laverdet/node-autoload)
 autoload -- Automatically load symbols in NodeJS
 ================================================
 
