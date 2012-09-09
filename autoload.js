@@ -54,7 +54,7 @@ function scrapeRegisterGlobalSymbols(source, path) {
 	source = stripComments(source);
 	var rx = /registerGlobal\((?: *function *)?["']?([a-zA-Z0-9$_]+) *(?:["']?|\)|,)/g;
 	var symbols = [];
-	for (var match = rx.exec(source); match !== null; match = rx.exec()) {
+	for (var match = rx.exec(source); match !== null; match = rx.exec(source)) {
 		symbols.push(match[1]);
 	}
 
@@ -64,7 +64,7 @@ function scrapeRegisterGlobalSymbols(source, path) {
 	match = rx.exec(source);
 	while (match !== null) {
 		++count;
-		match = rx.exec();
+		match = rx.exec(source);
 	}
 	if (count !== symbols.length) {
 		throw new Error('Failed to autoload ' + path + ':\n[' + symbols.join(',') + ']');
@@ -129,7 +129,7 @@ function autoload(root, loaders, ondone) {
 					for (var ii = 0; ii < loaders.length; ++ii) {
 						if (loaders[ii].pattern.test(path)) {
 							// Parse and register autoloading loaders
-							var symbols = loaders[ii].parse(source);
+							var symbols = loaders[ii].parse(source, path);
 							for (var jj = 0; jj < symbols.length; ++jj) {
 								// It's possible the symbol has already been defined, in which case we should avoid
 								// clobbering it with the autoloader.
