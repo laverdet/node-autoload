@@ -101,7 +101,7 @@ function registerGlobal(name, fn) {
  */
 function autoload(root, loaders, ondone) {
 	function autoloader(path, ondone) {
-		var fullPath = joinPath(root, path);
+		var fullPath = path ? joinPath(root, path) : root;
 
 		fs.stat(fullPath, function(err, stat) {
 			if (err) {
@@ -178,7 +178,7 @@ function autoload(root, loaders, ondone) {
 							}
 						} else {
 						~function(a) {
-							autoloader(joinPath(path, files[ii]), function() {
+							autoloader(path ? joinPath(path, files[ii]) : files[ii], function() {
 								if (!--remaining) {
 									return ondone();
 								}
