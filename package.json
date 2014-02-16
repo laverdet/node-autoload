@@ -1,6 +1,6 @@
 {
 	"name": "autoload",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Autoloading symbols via source code grokking",
 	"keywords": ["autoload", "require"],
 	"homepage": "https://github.com/laverdet/node-autoload",
